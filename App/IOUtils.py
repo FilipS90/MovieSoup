@@ -47,20 +47,3 @@ def deleteLine(lineToDelete):
             if line != lineToDelete:
                 f.write(line)
     
-
-
-
-
-
-    
-
-
-
-
-
-
-
-
-
-
-
