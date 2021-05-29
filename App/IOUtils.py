@@ -26,8 +26,6 @@ def returnOrCreateFile():
 def writeToFile(str):
     with open(path, 'a') as f:
         f.write(str)
-    # Gui = importlib.import_module('Gui')
-    # Gui.generateCurrentSearch()
 
 def addNewLine(line):
     currentContent = returnOrCreateFile()
