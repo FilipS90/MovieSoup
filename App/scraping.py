@@ -4,12 +4,11 @@ import importlib
 def buildAndPrint(movieDetails, movie, movieName, channelName):
     year = movieDetails.split(',')[1].strip()
     timeOfAiring = movie.find('em').text
-    print(movieName + ' (' + year + ')' + ' биће приказан у ' + timeOfAiring + ' на програму ' +
-    channelName )
+    return movieName + ' (' + year + ')' + ' - ' + timeOfAiring + ' - ' + channelName 
 
-def doSearch(keyword):
+def search(keyword):
     channels = importlib.import_module('Channels')
-    for channel in channels:
+    for channel in channels.channels:
         soup = BeautifulSoup(channel, 'lxml')
 
         movies = soup.find('div', class_='overflow').find_all('li')
@@ -20,16 +19,35 @@ def doSearch(keyword):
 
         for movie in movies:
 
-            movieNameSrb = movie.find('strong', class_='title').text
-            movieDetails = movie.find('strong', class_='desc').text
+            movieNameSrb = movie.find('strong', class_='title')
+            movieDetails = movie.find('strong', class_='desc')
+
+            if movieNameSrb != None:
+                movieNameSrb = movie.find('strong', class_='title').text
+
+            if movieDetails != None:
+                movieDetails = movie.find('strong', class_='desc').text
 
             onlyOnce = True
 
-            if keyword in movieNameSrb.lower():
-                onlyOnce = not onlyOnce
-                buildAndPrint(movieDetails, movie, movieNameSrb, channelName)
-
-            movieNameEng = movieDetails.split(',')[0]
+            if movieNameSrb != None:
+                if keyword in movieNameSrb.lower():
+                    onlyOnce = not onlyOnce
+                    return buildAndPrint(movieDetails, movie, movieNameSrb, channelName)
             
-            if (keyword in movieNameEng.lower()) & onlyOnce:
-                buildAndPrint(movieDetails, movie, movieNameEng, channelName)
+            if movieDetails != None:
+                movieNameEng = movieDetails.split(',')[0]
+                if (keyword in movieNameEng.lower()) & onlyOnce:
+                    return buildAndPrint(movieDetails, movie, movieNameEng, channelName)
+
+def doSearch_All(movies):
+    print(movies)
+    result = ''
+    for movie in movies:
+        if movie == '':
+            continue
+        val = search(movie)
+        if val != None:
+            result += val+'\n'
+
+    return result[: len(result) - 2]

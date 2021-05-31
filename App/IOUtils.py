@@ -1,15 +1,14 @@
 import os.path
 import sys
-import importlib
 from pathlib import Path
 
 path = os.path.expanduser('~')
 os = sys.platform
 
 if os == 'win32':
-    path += '\\current_search.txt'
+    path += '\\MovieSoupSearch.txt'
 else:
-    path += '/current_search.txt'
+    path += '/MovieSoupSearch.txt'
 
 def returnOrCreateFile():
     filePath = Path(path)
@@ -28,12 +27,8 @@ def writeToFile(str):
         f.write(str)
 
 def addNewLine(line):
-    currentContent = returnOrCreateFile()
+    writeToFile(line+'\n')
 
-    if currentContent:
-        writeToFile('\n'+line)
-    else:
-        writeToFile(line)
 
 def deleteLine(lineToDelete):
     with open(path, 'r+') as f:
@@ -42,6 +37,6 @@ def deleteLine(lineToDelete):
         f.truncate()
 
         for line in lines:
-            if line != lineToDelete:
+            if line != lineToDelete+'\n':
                 f.write(line)
     
