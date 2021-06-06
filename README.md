@@ -6,6 +6,6 @@ A little app I made for myself using a Python library Beautiful Soup for HTML pa
 
 Its fairly simple, just add words (or full movie names) you would want to search for and hit Претражи.
 
-It's far from perfect (especially the UI), it was more of a side project and fun for me, and checking out how Python works as I've never dealth with it before.. As Todd Howard would say, "This just works".
+It's far from perfect (especially the UI), it was more of a side project and fun for me, and checking out how Python works as I've never dealth with it before.
 
 
