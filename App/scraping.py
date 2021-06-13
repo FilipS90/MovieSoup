@@ -41,7 +41,6 @@ def search(keyword):
                     return buildAndPrint(movieDetails, movie, movieNameEng, channelName)
 
 def doSearch_All(movies):
-    print(movies)
     result = ''
     for movie in movies:
         if movie == '':
