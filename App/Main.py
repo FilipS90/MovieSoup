@@ -1,4 +1,6 @@
+from posixpath import expanduser
 from tkinter import *
+from tkinter import ttk
 from functools import partial
 import importlib
 import sys
@@ -10,7 +12,7 @@ Scraping = importlib.import_module('scraping')
 window = Tk()
 window.title('MovieSoup 1.0')
 window.geometry('500x600')
-window.resizable(width=False, height=True)
+# window.resizable(width=False, height=True)
 
 # Да би Pyinstaller повукао и слику у извршни фајл
 def resource_path(relative_path):
@@ -33,13 +35,13 @@ background_label.place(x=0, y=0, relwidth=1, relheight=1)
 entry = Entry(
     window,
     width=28)
-entry.grid(column=0, row=0, padx=5, pady=(5,0))
+entry.grid(column=0, row=0, padx=(5, 20), pady=(5,0), sticky='w')
 
 def clearEntry():
     entry.delete(0,'end')
 
 def addNew(event=None):
-    if not entry.get():
+    if not entry.get() or addMovie.cget('state') == 'disabled':
         return
     IOUtils.addNewLine(entry.get())
     clearEntry()
@@ -56,19 +58,89 @@ addMovie = Button(window,
                 fg='white',
                 bg='blue',
                 command=addNew)
-addMovie.grid(column=0, row=1, padx=5, pady=(3, 8))
+addMovie.grid(column=0, row=1, padx=5, pady=(3, 8), sticky='w')
 
 # Генерисање резултата
 def generateResults():
-    results = Scraping.doSearch_All(IOUtils.returnOrCreateFile().split('\n'))
-    if results == '':
-        return
-    resultLabel = Label(window, text=results, bg='blue', fg='white').grid(column=2, row=2, sticky='w')
+    if radioButtonVar.get() == 1:
+        results = Scraping.doSearch_All(IOUtils.returnOrCreateFile().split('\n'))
+        if results == '':
+            return
+        resultLabel = Label(window, text=results, bg='blue', fg='white').grid(column=2, row=5, sticky='w')
+    elif radioButtonVar.get() == 2:
+        pass
+    else:
+        pass
 
 # Дугме за претрагу
-searchButton = Button(window, text='Претражи', padx=20,
-                     fg='white', bg='blue', command=generateResults)
-searchButton.grid(column=2, row=1, padx=25)
+searchButton = Button(window, text='Претражи', fg='white', bg='blue', command=generateResults, width=15)
+searchButton.grid(column=2, row=7, columnspan=2, sticky='w')
+
+def interateOverCheckbuttonWidgets(state):
+    for widget in window.winfo_children():
+            if widget.winfo_class() == 'Checkbutton':
+                widget.config(state=state)
+
+def changeOptionStates(val):
+    if val == 1:
+        addMovie.config(state=ACTIVE)
+    elif val == 2:
+        interateOverCheckbuttonWidgets(ACTIVE)
+    elif val == 3:
+        pass
+
+    if val != 1:
+        addMovie.config(state=DISABLED)
+    elif val != 2:
+        interateOverCheckbuttonWidgets(DISABLED)
+    elif val != 3:
+        pass
+
+# Genres
+def genreButtons():
+    action = Checkbutton(window, text='Акција', width=7)
+    action.grid(row=1, column=1, padx=(12,2), pady=(14,2))
+
+    thriller = Checkbutton(window, text='Трилер   ', width=7)
+    thriller.grid(row=1, column=2, padx=(2,2), pady=(14,2))
+
+    horror = Checkbutton(window, text='Хорор        ', width=9)
+    horror.grid(row=1, column=3, padx=(2,2), pady=(14,2), sticky='w')
+
+    crime = Checkbutton(window, text='Крими', width=7)
+    crime.grid(row=2, column=1, padx=(12,2), pady=(2,2))
+
+    thriller = Checkbutton(window, text='Комедија', width=7)
+    thriller.grid(row=2, column=2, padx=(2,2), pady=(2,2))
+
+    adventure = Checkbutton(window, text='Авантура    ', width=9)
+    adventure.grid(row=2, column=3, padx=(2,2), pady=(2,2), sticky='w')
+
+    drama = Checkbutton(window, text='Драма', width=7)
+    drama.grid(row=3, column=1, padx=(12,2), pady=(2,2))
+
+    scifi = Checkbutton(window, text='Sci Fi       ', width=7)
+    scifi.grid(row=3, column=2, padx=(2,2), pady=(2,2))
+
+    family = Checkbutton(window, text='Породични', width=9)
+    family.grid(row=3, column=3, padx=(2,2), pady=(2,2), sticky='w')
+
+genreButtons()
+
+radioButtonVar = IntVar()
+radioButtonVar.set('1')
+
+# Radio buttons
+byName = Radiobutton(window, variable=radioButtonVar ,value=1, text='По имену', command=lambda: changeOptionStates(1))
+byName.grid(row=0, column=1, sticky='w', pady=(5,0), padx=(2,2))
+byName.invoke()
+
+byGenre = Radiobutton(window, variable=radioButtonVar ,value=2, text='По жанру', command=lambda: changeOptionStates(2))
+byGenre.grid(row=0, column=2, sticky='w', pady=(5,0), padx=(2,2))
+
+byYear = Radiobutton(window, variable=radioButtonVar ,value=3, text='По годинама', command=lambda: changeOptionStates(3))
+byYear.grid(row=0, column=3, sticky='w', pady=(5,0), padx=(5,2))
+
 
 # Уклони кључну реч / назив филма
 def removeKeyword(val):
@@ -88,7 +160,6 @@ def generateCurrentSearch():
             continue
         button = Button(window, text=val, bg='blue', fg='white', command=partial(removeKeyword, val))
         button.grid(column=0, row=idx+2, sticky='w', padx=(5,0), pady=2, columnspan=2)
-        window.lastRow = idx+2
 
 if len(IOUtils.returnOrCreateFile().split('\n')) > 1:
     generateCurrentSearch()
