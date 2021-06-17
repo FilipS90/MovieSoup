@@ -61,19 +61,24 @@ addMovie = Button(window,
 addMovie.grid(column=0, row=1, padx=5, pady=(3, 8), sticky='w')
 
 # Генерисање резултата
-def generateResults():
-    if radioButtonVar.get() == 1:
-        results = Scraping.doSearch_All(IOUtils.returnOrCreateFile().split('\n'))
-        if results == '':
+def generateResults(results):
+    if results == '':
             return
-        resultLabel = Label(window, text=results, bg='blue', fg='white').grid(column=2, row=5, sticky='w')
-    elif radioButtonVar.get() == 2:
-        pass
-    else:
-        pass
+    resultLabel = Label(window, text=results, bg='blue', fg='white').grid(column=2, row=5, sticky='w')
+
+# Покретање претраге
+def executeSearch():
+    results = None
+    searchOption = radioButtonVar.get()
+    if searchOption == 1:
+        results = Scraping.doSearchAll(IOUtils.returnOrCreateFile().split('\n'), searchOption)
+    elif searchOption == 2:
+        results = Scraping.doSearchAll(genresToSearch, searchOption)
+    generateResults(results)
+
 
 # Дугме за претрагу
-searchButton = Button(window, text='Претражи', fg='white', bg='blue', command=generateResults, width=15)
+searchButton = Button(window, text='Претражи', fg='white', bg='blue', command=executeSearch, width=15)
 searchButton.grid(column=2, row=7, columnspan=2, sticky='w')
 
 def interateOverCheckbuttonWidgets(state):
@@ -96,34 +101,51 @@ def changeOptionStates(val):
     elif val != 3:
         pass
 
+genresToSearch = []
+
+def addOrRemoveGenre(val):
+    if val in genresToSearch:
+        genresToSearch.remove(val)
+        if(val == 'SF'):
+            genresToSearch.remove('Fantastika')
+    else:
+        genresToSearch.append(val)
+        if(val == 'SF'):
+            genresToSearch.append('Fantastika')
+
 # Genres
 def genreButtons():
-    action = Checkbutton(window, text='Акција', width=7)
+    action = Checkbutton(window, text='Акција', width=7, command=lambda: addOrRemoveGenre('Akcija'))
     action.grid(row=1, column=1, padx=(12,2), pady=(14,2))
 
-    thriller = Checkbutton(window, text='Трилер   ', width=7)
+    thriller = Checkbutton(window, text='Трилер   ', width=7, command=lambda: addOrRemoveGenre('Triler'))
     thriller.grid(row=1, column=2, padx=(2,2), pady=(14,2))
 
-    horror = Checkbutton(window, text='Хорор        ', width=9)
-    horror.grid(row=1, column=3, padx=(2,2), pady=(14,2), sticky='w')
+    romance = Checkbutton(window, text='Романтика ', width=9, command=lambda: addOrRemoveGenre('Romantika'))
+    romance.grid(row=1, column=3, padx=(2,2), pady=(14,2), sticky='w')
 
-    crime = Checkbutton(window, text='Крими', width=7)
+    crime = Checkbutton(window, text='Крими', width=7, command=lambda: addOrRemoveGenre('KRIMINAL'))
     crime.grid(row=2, column=1, padx=(12,2), pady=(2,2))
 
-    thriller = Checkbutton(window, text='Комедија', width=7)
-    thriller.grid(row=2, column=2, padx=(2,2), pady=(2,2))
+    comedy = Checkbutton(window, text='Комедија', width=7, command=lambda: addOrRemoveGenre('Komedija'))
+    comedy.grid(row=2, column=2, padx=(2,2), pady=(2,2))
 
-    adventure = Checkbutton(window, text='Авантура    ', width=9)
+    adventure = Checkbutton(window, text='Авантура    ', width=9, command=lambda: addOrRemoveGenre('Avantura'))
     adventure.grid(row=2, column=3, padx=(2,2), pady=(2,2), sticky='w')
 
-    drama = Checkbutton(window, text='Драма', width=7)
+    drama = Checkbutton(window, text='Драма', width=7, command=lambda: addOrRemoveGenre('Drama'))
     drama.grid(row=3, column=1, padx=(12,2), pady=(2,2))
 
-    scifi = Checkbutton(window, text='Sci Fi       ', width=7)
+    scifi = Checkbutton(window, text='Sci-Fi       ', width=7, command=lambda: addOrRemoveGenre('SF'))
     scifi.grid(row=3, column=2, padx=(2,2), pady=(2,2))
 
-    family = Checkbutton(window, text='Породични', width=9)
+    family = Checkbutton(window, text='Породични', width=9, command=lambda: addOrRemoveGenre('Obitelj'))
     family.grid(row=3, column=3, padx=(2,2), pady=(2,2), sticky='w')
+
+    horror = Checkbutton(window, text='Хорор     ', width=7, command=lambda: addOrRemoveGenre('Horror'))
+    horror.grid(row=4, column=2, padx=(2,2), pady=(2,2))
+
+
 
 genreButtons()
 

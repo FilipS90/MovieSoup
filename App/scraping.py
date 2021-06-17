@@ -1,16 +1,20 @@
 from bs4 import BeautifulSoup
 import importlib
 
-def buildAndPrint(movieDetails, movie, movieName, channelName):
-    year = movieDetails.split(',')[1].strip()
+def build(movieDetails, movie, movieName, channelName, genres=None):
+    year = ''
+    try:
+        year = movieDetails.split(',')[1].strip()
+    except:
+        print(movieDetails)
     timeOfAiring = movie.find('em').text
-    return movieName + ' (' + year + ')' + ' - ' + timeOfAiring + ' - ' + channelName 
+    return movieName + ' ' +  year + ' - ' + timeOfAiring + ' - ' + channelName + ' - ' + genres
 
-def search(keyword):
-    channels = importlib.import_module('Channels')
-    for channel in channels.channels:
+def search(input, option):
+    results = ''
+    channelsModule = importlib.import_module('Channels')
+    for channel in channelsModule.channels:
         soup = BeautifulSoup(channel, 'lxml')
-
         movies = soup.find('div', class_='overflow').find_all('li')
         channelName = soup.find('h1', class_='bigheader').text.split('-')[0]
 
@@ -30,23 +34,46 @@ def search(keyword):
 
             onlyOnce = True
 
-            if movieNameSrb != None:
-                if keyword in movieNameSrb.lower():
-                    onlyOnce = not onlyOnce
-                    return buildAndPrint(movieDetails, movie, movieNameSrb, channelName)
-            
             if movieDetails != None:
-                movieNameEng = movieDetails.split(',')[0]
-                if (keyword in movieNameEng.lower()) & onlyOnce:
-                    return buildAndPrint(movieDetails, movie, movieNameEng, channelName)
+                    movieNameEng = movieDetails.split(',')[0]
 
-def doSearch_All(movies):
+            # by movie name
+            if option == 1:
+                if movieNameSrb != None:
+                    if input in movieNameSrb.lower():
+                        onlyOnce = not onlyOnce
+                        return build(movieDetails, movie, movieNameSrb, channelName)
+                
+                if (input in movieNameEng.lower()) & onlyOnce:
+                    return build(movieDetails, movie, movieNameEng, channelName)
+
+            # by genres
+            if option == 2:
+                levelOneSearch = movie.find('span', class_='h')
+                if levelOneSearch.find('span') != None:
+                    genres = levelOneSearch.find('span').text
+                    genres = genres.lower()
+                if input.lower() in genres:
+                    results += build(movieDetails, movie, movieNameEng, channelName, genres)+'\n'
+
+    if results != '':
+        return results
+                    
+
+def doSearchAll(input, option):
     result = ''
-    for movie in movies:
-        if movie == '':
-            continue
-        val = search(movie)
-        if val != None:
-            result += val+'\n'
+    if option == 1:
+        for movie in input:
+            if movie == '':
+                continue
+            val = search(movie, option)
+            if val != None:
+                result += val+'\n'
+        return result[: len(result) - 2]
 
-    return result[: len(result) - 2]
+    if option == 2:
+        for genre in input:
+            val = search(genre, option)
+            if val != None:
+                    result += val+'\n'
+        return result[: len(result) - 2]
