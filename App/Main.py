@@ -11,7 +11,7 @@ Scraping = importlib.import_module('scraping')
 
 window = Tk()
 window.title('MovieSoup 1.0')
-window.geometry('500x600')
+window.geometry('1030x600')
 # window.resizable(width=False, height=True)
 
 # Да би Pyinstaller повукао и слику у извршни фајл
@@ -63,12 +63,20 @@ addMovie.grid(column=0, row=1, padx=5, pady=(3, 8), sticky='w')
 # Генерисање резултата
 def generateResults(results):
     if results == '':
-            return
-    resultLabel = Label(window, text=results, bg='blue', fg='white').grid(column=2, row=5, sticky='w')
+        return
+    if radioButtonVar.get() == 1:
+        resultLabel = Label(window, text=results, bg='blue', fg='white').grid(column=2, row=8, sticky='w')
+    elif radioButtonVar.get() == 2:
+        resultsList = Listbox(window, bg='blue', fg='white', width=0, height=15)
+        resultsList.grid(column=5, row=0, rowspan=8, padx=(10,0), pady=(5,0))
+        for movie in results:
+            resultsList.insert(END, movie)
+
 
 # Покретање претраге
 def executeSearch():
     results = None
+    refreshWindow()
     searchOption = radioButtonVar.get()
     if searchOption == 1:
         results = Scraping.doSearchAll(IOUtils.returnOrCreateFile().split('\n'), searchOption)
@@ -163,6 +171,9 @@ byGenre.grid(row=0, column=2, sticky='w', pady=(5,0), padx=(2,2))
 byYear = Radiobutton(window, variable=radioButtonVar ,value=3, text='По годинама', command=lambda: changeOptionStates(3))
 byYear.grid(row=0, column=3, sticky='w', pady=(5,0), padx=(5,2))
 
+# Освежи прозор
+def refreshWindow():
+    print('Refreshing')
 
 # Уклони кључну реч / назив филма
 def removeKeyword(val):
