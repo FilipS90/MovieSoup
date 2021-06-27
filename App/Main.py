@@ -14,6 +14,13 @@ window.title('MovieSoup 1.0')
 window.geometry('1030x600')
 # window.resizable(width=False, height=True)
 
+nameInt = 0
+
+def setConstantElementNames():
+    global nameInt
+    nameInt += 1
+    return 'const' + str(nameInt)
+
 # Да би Pyinstaller повукао и слику у извршни фајл
 def resource_path(relative_path):
     """ Get absolute path to resource, works for dev and for PyInstaller """
@@ -28,14 +35,14 @@ def resource_path(relative_path):
 img = resource_path("backgroundImg.png")
 
 background=PhotoImage(file=img)
-background_label = Label(window, image=background, name='const1')
+background_label = Label(window, image=background, name=setConstantElementNames())
 background_label.place(x=0, y=0, relwidth=1, relheight=1)
 
 # Елемент за куцање речи
 entry = Entry(
     window,
     width=28, 
-    name='const2')
+    name=setConstantElementNames())
 entry.grid(column=0, row=0, padx=(5, 20), pady=(5,0), sticky='w')
 
 def clearEntry():
@@ -59,7 +66,7 @@ addMovie = Button(window,
                 fg='white',
                 bg='blue',
                 command=addNew,
-                name='const3')
+                name=setConstantElementNames())
 addMovie.grid(column=0, row=1, padx=5, pady=(3, 8), sticky='w')
 
 # Генерисање резултата
@@ -68,12 +75,11 @@ def generateResults(results):
         return
     if radioButtonVar.get() == 1:
         resultLabel = Label(window, text=results, bg='blue', fg='white', name='generated1').grid(column=2, row=8, sticky='w')
-    elif radioButtonVar.get() == 2:
-        resultsList = Listbox(window, bg='blue', fg='white', width=0, height=15, name='generated2')
-        resultsList.grid(column=5, row=0, rowspan=8, padx=(10,0), pady=(5,0))
+    else:
+        resultsList = Listbox(window, bg='blue', fg='white', width=0, height=22, name='generated2')
+        resultsList.grid(column=5, row=0, rowspan=12, padx=(10,0), pady=(5,0))
         for movie in results:
             resultsList.insert(END, movie)
-
 
 # Покретање претраге
 def executeSearch():
@@ -84,32 +90,68 @@ def executeSearch():
         results = Scraping.doSearchAll(IOUtils.returnOrCreateFile().split('\n'), searchOption)
     elif searchOption == 2:
         results = Scraping.doSearchAll(genresToSearch, searchOption)
+    elif searchOption == 3:
+        print(fromYearInput.get() + ' ' + toYearInput.get())
+        betweenYears = [fromYearInput.get(), toYearInput.get()]
+        results = Scraping.doSearchAll(betweenYears, searchOption)
     generateResults(results)
 
 
 # Дугме за претрагу
-searchButton = Button(window, text='Претражи', fg='white', bg='blue', command=executeSearch, width=15, name='const4')
-searchButton.grid(column=2, row=7, columnspan=2, sticky='w')
+searchButton = Button(window, text='Претражи', fg='white', bg='blue', command=executeSearch, width=15, name=setConstantElementNames())
+searchButton.grid(column=2, row=12, columnspan=2, sticky='w')
 
-def interateOverCheckbuttonWidgets(state):
+# Genres
+def generateGenreButtons():
+    action = Checkbutton(window, text='Акција', width=7, command=lambda: addOrRemoveGenre('Akcija'), name=setConstantElementNames())
+    action.grid(row=1, column=1, padx=(12,2), pady=(14,2))
+
+    thriller = Checkbutton(window, text='Трилер   ', width=7, command=lambda: addOrRemoveGenre('Triler'), name=setConstantElementNames())
+    thriller.grid(row=1, column=2, padx=(2,2), pady=(14,2))
+
+    romance = Checkbutton(window, text='Романтика ', width=9, command=lambda: addOrRemoveGenre('Romantika'), name=setConstantElementNames())
+    romance.grid(row=1, column=3, padx=(2,2), pady=(14,2), sticky='w')
+
+    crime = Checkbutton(window, text='Крими', width=7, command=lambda: addOrRemoveGenre('KRIMINAL'), name=setConstantElementNames())
+    crime.grid(row=2, column=1, padx=(12,2), pady=(2,2))
+
+    comedy = Checkbutton(window, text='Комедија', width=7, command=lambda: addOrRemoveGenre('Komedija'), name=setConstantElementNames())
+    comedy.grid(row=2, column=2, padx=(2,2), pady=(2,2))
+
+    adventure = Checkbutton(window, text='Авантура    ', width=9, command=lambda: addOrRemoveGenre('Avantura'), name=setConstantElementNames())
+    adventure.grid(row=2, column=3, padx=(2,2), pady=(2,2), sticky='w')
+
+    drama = Checkbutton(window, text='Драма', width=7, command=lambda: addOrRemoveGenre('Drama'), name=setConstantElementNames())
+    drama.grid(row=3, column=1, padx=(12,2), pady=(2,2))
+
+    scifi = Checkbutton(window, text='Sci-Fi       ', width=7, command=lambda: addOrRemoveGenre('SF'), name=setConstantElementNames())
+    scifi.grid(row=3, column=2, padx=(2,2), pady=(2,2))
+
+    family = Checkbutton(window, text='Породични', width=9, command=lambda: addOrRemoveGenre('Obitelj'), name=setConstantElementNames())
+    family.grid(row=3, column=3, padx=(2,2), pady=(2,2), sticky='w')
+
+    horror = Checkbutton(window, text='Хорор     ', width=7, command=lambda: addOrRemoveGenre('Horror'), name=setConstantElementNames())
+    horror.grid(row=4, column=2, padx=(2,2), pady=(2,2))
+
+generateGenreButtons()
+
+def interateOverCheckbuttonWidgets(newState):
     for widget in window.winfo_children():
             if widget.winfo_class() == 'Checkbutton':
-                widget.config(state=state)
+                widget.config(state=newState)
 
 def changeOptionStates(val):
     if val == 1:
         addMovie.config(state=ACTIVE)
-    elif val == 2:
+    if val == 2:
         interateOverCheckbuttonWidgets(ACTIVE)
-    elif val == 3:
-        pass
+    if val == 3:
+        interateOverCheckbuttonWidgets(DISABLED)
 
     if val != 1:
         addMovie.config(state=DISABLED)
-    elif val != 2:
+    if val != 2:
         interateOverCheckbuttonWidgets(DISABLED)
-    elif val != 3:
-        pass
 
 genresToSearch = []
 
@@ -123,55 +165,31 @@ def addOrRemoveGenre(val):
         if(val == 'SF'):
             genresToSearch.append('Fantastika')
 
-# Genres
-def genreButtons():
-    action = Checkbutton(window, text='Акција', width=7, command=lambda: addOrRemoveGenre('Akcija'), name='const5')
-    action.grid(row=1, column=1, padx=(12,2), pady=(14,2))
-
-    thriller = Checkbutton(window, text='Трилер   ', width=7, command=lambda: addOrRemoveGenre('Triler'), name='const6')
-    thriller.grid(row=1, column=2, padx=(2,2), pady=(14,2))
-
-    romance = Checkbutton(window, text='Романтика ', width=9, command=lambda: addOrRemoveGenre('Romantika'), name='const7')
-    romance.grid(row=1, column=3, padx=(2,2), pady=(14,2), sticky='w')
-
-    crime = Checkbutton(window, text='Крими', width=7, command=lambda: addOrRemoveGenre('KRIMINAL'), name='const8')
-    crime.grid(row=2, column=1, padx=(12,2), pady=(2,2))
-
-    comedy = Checkbutton(window, text='Комедија', width=7, command=lambda: addOrRemoveGenre('Komedija'), name='const9')
-    comedy.grid(row=2, column=2, padx=(2,2), pady=(2,2))
-
-    adventure = Checkbutton(window, text='Авантура    ', width=9, command=lambda: addOrRemoveGenre('Avantura'), name='const10')
-    adventure.grid(row=2, column=3, padx=(2,2), pady=(2,2), sticky='w')
-
-    drama = Checkbutton(window, text='Драма', width=7, command=lambda: addOrRemoveGenre('Drama'), name='const11')
-    drama.grid(row=3, column=1, padx=(12,2), pady=(2,2))
-
-    scifi = Checkbutton(window, text='Sci-Fi       ', width=7, command=lambda: addOrRemoveGenre('SF'), name='const12')
-    scifi.grid(row=3, column=2, padx=(2,2), pady=(2,2))
-
-    family = Checkbutton(window, text='Породични', width=9, command=lambda: addOrRemoveGenre('Obitelj'), name='const13')
-    family.grid(row=3, column=3, padx=(2,2), pady=(2,2), sticky='w')
-
-    horror = Checkbutton(window, text='Хорор     ', width=7, command=lambda: addOrRemoveGenre('Horror'), name='const14')
-    horror.grid(row=4, column=2, padx=(2,2), pady=(2,2))
-
-
-
-genreButtons()
-
 radioButtonVar = IntVar()
 radioButtonVar.set('1')
 
 # Radio buttons
-byName = Radiobutton(window, variable=radioButtonVar ,value=1, text='По имену', command=lambda: changeOptionStates(1), name='const15')
+byName = Radiobutton(window, variable=radioButtonVar ,value=1, text='По имену', command=lambda: changeOptionStates(1), name=setConstantElementNames())
 byName.grid(row=0, column=1, sticky='w', pady=(5,0), padx=(2,2))
 byName.invoke()
 
-byGenre = Radiobutton(window, variable=radioButtonVar ,value=2, text='По жанру', command=lambda: changeOptionStates(2), name='const16')
+byGenre = Radiobutton(window, variable=radioButtonVar ,value=2, text='По жанру', command=lambda: changeOptionStates(2), name=setConstantElementNames())
 byGenre.grid(row=0, column=2, sticky='w', pady=(5,0), padx=(2,2))
 
-byYear = Radiobutton(window, variable=radioButtonVar ,value=3, text='По годинама', command=lambda: changeOptionStates(3), name='const17')
+byYear = Radiobutton(window, variable=radioButtonVar ,value=3, text='По годинама', command=lambda: changeOptionStates(3), name=setConstantElementNames())
 byYear.grid(row=0, column=3, sticky='w', pady=(5,0), padx=(5,2))
+
+fromYear = Label(window, text='Од године', bg='blue', fg='white', width=8, name=setConstantElementNames())
+fromYear.grid(row=6, column=1, sticky='w')
+
+fromYearInput = Entry(window, width=10, name=setConstantElementNames())
+fromYearInput.grid(row=7, column=1, sticky='w')
+
+toYear = Label(window, text='До године', bg='blue', fg='white', width=8, name=setConstantElementNames())
+toYear.grid(row=6, column=3, sticky='w')
+
+toYearInput = Entry(window, width=10, name=setConstantElementNames())
+toYearInput.grid(row=7, column=3, sticky='w')
 
 # Освежи прозор
 def refreshWindow(widgetToDelete):

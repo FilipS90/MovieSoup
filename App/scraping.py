@@ -37,7 +37,7 @@ def search(input, option):
             if movieDetails != None:
                     movieNameEng = movieDetails.split(',')[0]
 
-            if 'Telop sponzorski za film' in movieNameEng:
+            if 'Telop sponzorski' in movieNameEng:
                 continue
 
             # by movie name
@@ -50,21 +50,38 @@ def search(input, option):
                 if (input in movieNameEng.lower()) & onlyOnce:
                     return build(movieDetails, timeOfAiring, movieNameEng, channelName)
 
+            levelOneSearch = movie.find('span', class_='h')
+            if levelOneSearch.find('span') != None:
+                genres = ' - ' + levelOneSearch.find('span').text
+            
+            if len(genres) > 30:
+                    genres = ''
+
             # by genres
             if option == 2:
-                levelOneSearch = movie.find('span', class_='h')
-                if levelOneSearch.find('span') != None:
-                    genres = levelOneSearch.find('span').text
                 if input.lower() in genres.lower():
                     if '/' in movieNameEng:
                         movieNameEng = movieNameEng.split('/')[1]
-                    results += build(movieDetails, timeOfAiring, movieNameEng, channelName, ' - ' + genres)+'\n'
+                    if len(movieNameEng) > 30:
+                        genres = ''
+                    results += build(movieDetails, timeOfAiring, movieNameEng, channelName, genres)+'\n'
+
+            if option == 3:
+                try:
+                    year = movieDetails.split(',')[1].strip().replace('(', '').replace(')', '')
+                    year = int(year)
+                except:
+                    print('Problem with the year generation')
+                    continue
+                if (year >= int(input[0])) and (year <= int(input[1])):
+                    results += build(movieDetails, timeOfAiring, movieNameEng, channelName, genres)+'\n'
 
     if results != '':
         return results.split('\n')
                     
 
 def doSearchAll(input, option):
+    result = []
     if option == 1:
         result = ''
         for movie in input:
@@ -76,10 +93,14 @@ def doSearchAll(input, option):
         return result[: len(result) - 2]
 
     if option == 2:
-        result = []
         for genre in input:
             val = search(genre, option)
             if val != None:
                     result.extend(val)
-        result.remove('')
         return result
+
+    if option == 3:
+        val = search(input, option)
+        result.extend(val)
+        return result
+
