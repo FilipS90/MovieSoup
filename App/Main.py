@@ -7,7 +7,7 @@ import sys
 import os
 
 IOUtils = importlib.import_module('IOUtil')
-Scraping = importlib.import_module('ScrapingUTil')
+Scraping = importlib.import_module('ScrapingUtil')
 
 window = Tk()
 window.title('MovieSoup 1.0')
