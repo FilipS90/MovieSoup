@@ -11,8 +11,8 @@ Scraping = importlib.import_module('scraping')
 
 window = Tk()
 window.title('MovieSoup 1.0')
-window.geometry('1030x600')
-# window.resizable(width=False, height=True)
+window.geometry('1020x350')
+window.resizable(width=False, height=False)
 
 nameInt = 0
 
@@ -53,6 +53,7 @@ def addNew(event=None):
         return
     IOUtils.addNewLine(entry.get())
     clearEntry()
+    refreshWindow('keywords')
     generateCurrentSearch()
 
 # Повезивање addNew методе са ентер дугметом
@@ -76,8 +77,8 @@ def generateResults(results):
     if radioButtonVar.get() == 1:
         resultLabel = Label(window, text=results, bg='blue', fg='white', name='generated1').grid(column=2, row=8, sticky='w')
     else:
-        resultsList = Listbox(window, bg='blue', fg='white', width=0, height=22, name='generated2')
-        resultsList.grid(column=5, row=0, rowspan=12, padx=(10,0), pady=(5,0))
+        resultsList = Listbox(window, bg='blue', fg='white', width=0, height=17, name='generated2')
+        resultsList.grid(column=5, row=0, rowspan=12, padx=(15,0), pady=(5,0))
         for movie in results:
             resultsList.insert(END, movie)
 
@@ -98,8 +99,8 @@ def executeSearch():
 
 
 # Дугме за претрагу
-searchButton = Button(window, text='Претражи', fg='white', bg='blue', command=executeSearch, width=15, name=setConstantElementNames())
-searchButton.grid(column=2, row=12, columnspan=2, sticky='w')
+searchButton = Button(window, text='Претражи', fg='white', bg='green', command=executeSearch, width=10, name=setConstantElementNames())
+searchButton.grid(column=1, row=11, columnspan=2, sticky='e')
 
 # Genres
 def generateGenreButtons():
@@ -156,6 +157,7 @@ def changeOptionStates(val):
 genresToSearch = []
 
 def addOrRemoveGenre(val):
+    global genresToSearch
     if val in genresToSearch:
         genresToSearch.remove(val)
         if(val == 'SF'):
@@ -180,16 +182,16 @@ byYear = Radiobutton(window, variable=radioButtonVar ,value=3, text='По год
 byYear.grid(row=0, column=3, sticky='w', pady=(5,0), padx=(5,2))
 
 fromYear = Label(window, text='Од године', bg='blue', fg='white', width=8, name=setConstantElementNames())
-fromYear.grid(row=6, column=1, sticky='w')
+fromYear.grid(row=7, column=1)
 
 fromYearInput = Entry(window, width=10, name=setConstantElementNames())
-fromYearInput.grid(row=7, column=1, sticky='w')
+fromYearInput.grid(row=8, column=1)
 
 toYear = Label(window, text='До године', bg='blue', fg='white', width=8, name=setConstantElementNames())
-toYear.grid(row=6, column=3, sticky='w')
+toYear.grid(row=7, column=3)
 
 toYearInput = Entry(window, width=10, name=setConstantElementNames())
-toYearInput.grid(row=7, column=3, sticky='w')
+toYearInput.grid(row=8, column=3)
 
 # Освежи прозор
 def refreshWindow(widgetToDelete):
@@ -197,19 +199,27 @@ def refreshWindow(widgetToDelete):
         if str(widget).split(".")[-1].startswith(widgetToDelete):
             widget.destroy()
 
+resultsList = None
+
 # Уклони кључну реч / назив филма
-def removeKeyword(val):
-    refreshWindow('resBut')
+def removeKeyword(event):
+    global resultsList
+    for i in resultsList.curselection():
+        val = resultsList.get(i)
     IOUtils.deleteLine(val)
+    refreshWindow('keywords')
     generateCurrentSearch()
 
 # Генерисање тренутних кључних речи / имена филмова
 def generateCurrentSearch():
-    for idx, val in enumerate(IOUtils.returnOrCreateFile().split('\n')):
-        if val == '':
-            continue
-        button = Button(window, text=val, bg='blue', fg='white', command=partial(removeKeyword, val), name='resBut' + str(idx))
-        button.grid(column=0, row=idx+2, sticky='w', padx=(5,0), pady=2, columnspan=2)
+    movies = IOUtils.returnOrCreateFile().split('\n')
+    global resultsList
+    resultsList = Listbox(window, bg='blue', fg='white', width=28, height=13, name='keywords')
+    resultsList.grid(column=0, row=2, padx=(5,0), pady=2, rowspan=10, sticky='w')
+    resultsList.bind('<Double-1>', removeKeyword)
+
+    for movie in movies:
+        resultsList.insert(END, movie)
 
 if len(IOUtils.returnOrCreateFile().split('\n')) > 1:
     generateCurrentSearch()

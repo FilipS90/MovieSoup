@@ -71,13 +71,17 @@ def search(input, option):
                     year = movieDetails.split(',')[1].strip().replace('(', '').replace(')', '')
                     year = int(year)
                 except:
-                    print('Problem with the year generation')
-                    continue
+                    try:
+                        year = int(movieDetails.split(',')[2].strip().replace('(', '').replace(')', ''))
+                    except:
+                        print('Cant recover year')
+                        continue
                 if (year >= int(input[0])) and (year <= int(input[1])):
                     results += build(movieDetails, timeOfAiring, movieNameEng, channelName, genres)+'\n'
 
     if results != '':
-        return results.split('\n')
+        results = results.split('\n')
+        return results
                     
 
 def doSearchAll(input, option):
@@ -97,10 +101,11 @@ def doSearchAll(input, option):
             val = search(genre, option)
             if val != None:
                     result.extend(val)
-        return result
 
     if option == 3:
         val = search(input, option)
         result.extend(val)
-        return result
+    
+    result.pop()
+    return result
 
