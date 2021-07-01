@@ -1,5 +1,7 @@
 from bs4 import BeautifulSoup
 import importlib
+channelsModule = importlib.import_module('Channels')
+channels = channelsModule.channels
 
 def build(movieDetails, timeOfAiring, movieName, channelName, genres=''):
     year = ''
@@ -11,8 +13,7 @@ def build(movieDetails, timeOfAiring, movieName, channelName, genres=''):
 
 def search(input, option):
     results = ''
-    channelsModule = importlib.import_module('Channels')
-    for channel in channelsModule.channels:
+    for channel in channels:
         soup = BeautifulSoup(channel, 'lxml')
         movies = soup.find('div', class_='overflow').find_all('li')
         channelName = soup.find('h1', class_='bigheader').text.split('-')[0]

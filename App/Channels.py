@@ -1,43 +1,54 @@
 import requests
+import concurrent.futures
 
 # from mojtv.net
-HBO = requests.get('https://mojtv.net/kanal/tv-program/366/hbo').text
-HBO_2 = requests.get('https://mojtv.net/kanal/tv-program/367/hbo2').text
-Cinemax = requests.get('https://mojtv.net/kanal/tv-program/368/cinemax').text
-Cinemax_2 = requests.get('https://mojtv.net/kanal/tv-program/369/cinemax-2').text
-Cinestar_Fantasy = requests.get('https://mojtv.net/kanal/tv-program/600/cinestar-fantasy').text
-Cinestar_TV_Comedy = requests.get('https://mojtv.net/kanal/tv-program/665/cinestar-tv-comedy').text
-Cinestar_TV = requests.get('https://mojtv.net/kanal/tv-program/371/cinestar-tv').text
-Cinestar_Action_and_Thriller = requests.get('https://mojtv.net/kanal/tv-program/372/cinestar-action--thriller').text
-Cinestar_Premiere_1 = requests.get('https://mojtv.net/kanal/tv-program/373/cinestar-premiere-1').text
-Cinestar_Premiere_2 = requests.get('https://mojtv.net/kanal/tv-program/374/cinestar-premiere-2').text
-TV_1000 = requests.get('https://mojtv.net/kanal/tv-program/378/tv-1000').text
-Fox_Life = requests.get('https://mojtv.net/kanal/tv-program/396/fox-life').text
-Fox_Crime = requests.get('https://mojtv.net/kanal/tv-program/397/fox-crime').text
-Fox_Movies = requests.get('https://mojtv.net/kanal/tv-program/403/fox-movies').text
-Fox = requests.get('https://mojtv.net/kanal/tv-program/404/fox').text
-Pink_Premium = requests.get('https://mojtv.net/kanal/tv-program/415/pink-premium').text
-Pink_Family = requests.get('https://mojtv.net/kanal/tv-program/416/pink-family').text
-Pink_Film = requests.get('https://mojtv.net/kanal/tv-program/417/pink-film').text
-Pink_Movies = requests.get('https://mojtv.net/kanal/tv-program/418/pink-movies').text
-Pink_Romance = requests.get('https://mojtv.net/kanal/tv-program/419/pink-romance').text
-Pink_Sci_Fi = requests.get('https://mojtv.net/kanal/tv-program/420/pink-scfi--fantasy').text
-Pink_Action = requests.get('https://mojtv.net/kanal/tv-program/421/pink-action').text
-Pink_Thriller = requests.get('https://mojtv.net/kanal/tv-program/422/pink-thriller').text
-Pink_Crime_and_Mystery = requests.get('https://mojtv.net/kanal/tv-program/423/pink-crime--mystery').text
-Pink_Comedy = requests.get('https://mojtv.net/kanal/tv-program/425/pink-comedy').text
-Pink_Horror = requests.get('https://mojtv.net/kanal/tv-program/427/pink-horror').text
-Pink_Western = requests.get('https://mojtv.net/kanal/tv-program/432/pink-western').text
-Pink_Classic = requests.get('https://mojtv.net/kanal/tv-program/433/pink-classic').text
-Pink_World_Cinema = requests.get('https://mojtv.net/kanal/tv-program/470/pink-world-cinema').text
-Diva = requests.get('https://mojtv.net/kanal/tv-program/444/diva').text
-AXN = requests.get('https://mojtv.net/kanal/tv-program/445/axn').text
-SciFi = requests.get('https://mojtv.net/kanal/tv-program/452/scifi').text
-Klasik_TV = requests.get('https://mojtv.net/kanal/tv-program/184/klasik-tv').text
-AMC = requests.get('https://mojtv.net/kanal/tv-program/437/amc').text
+urls = ['https://mojtv.net/kanal/tv-program/366/hbo',
+        'https://mojtv.net/kanal/tv-program/367/hbo2',
+        'https://mojtv.net/kanal/tv-program/368/cinemax',
+        'https://mojtv.net/kanal/tv-program/369/cinemax-2',
+        'https://mojtv.net/kanal/tv-program/600/cinestar-fantasy',
+        'https://mojtv.net/kanal/tv-program/665/cinestar-tv-comedy',
+        'https://mojtv.net/kanal/tv-program/371/cinestar-tv',
+        'https://mojtv.net/kanal/tv-program/372/cinestar-action--thriller',
+        'https://mojtv.net/kanal/tv-program/373/cinestar-premiere-1',
+        'https://mojtv.net/kanal/tv-program/374/cinestar-premiere-2',
+        'https://mojtv.net/kanal/tv-program/378/tv-1000',
+        'https://mojtv.net/kanal/tv-program/396/fox-life',
+        'https://mojtv.net/kanal/tv-program/397/fox-crime',
+        'https://mojtv.net/kanal/tv-program/403/fox-movies',
+        'https://mojtv.net/kanal/tv-program/404/fox',
+        'https://mojtv.net/kanal/tv-program/415/pink-premium',
+        'https://mojtv.net/kanal/tv-program/416/pink-family',
+        'https://mojtv.net/kanal/tv-program/417/pink-film',
+        'https://mojtv.net/kanal/tv-program/418/pink-movies',
+        'https://mojtv.net/kanal/tv-program/419/pink-romance',
+        'https://mojtv.net/kanal/tv-program/420/pink-scfi--fantasy',
+        'https://mojtv.net/kanal/tv-program/421/pink-action',
+        'https://mojtv.net/kanal/tv-program/422/pink-thriller',
+        'https://mojtv.net/kanal/tv-program/423/pink-crime--mystery',
+        'https://mojtv.net/kanal/tv-program/425/pink-comedy',
+        'https://mojtv.net/kanal/tv-program/427/pink-horror',
+        'https://mojtv.net/kanal/tv-program/432/pink-western',
+        'https://mojtv.net/kanal/tv-program/433/pink-classic',
+        'https://mojtv.net/kanal/tv-program/470/pink-world-cinema',
+        'https://mojtv.net/kanal/tv-program/444/diva',
+        'https://mojtv.net/kanal/tv-program/445/axn',
+        'https://mojtv.net/kanal/tv-program/452/scifi',
+        'https://mojtv.net/kanal/tv-program/184/klasik-tv',
+        'https://mojtv.net/kanal/tv-program/437/amc'
+        ]
 
-channels = [HBO, HBO_2, Cinemax, Cinemax_2, Cinestar_Fantasy, Cinestar_TV_Comedy, Cinestar_TV,
-Cinestar_Action_and_Thriller, Cinestar_Premiere_1, Cinestar_Premiere_2, TV_1000, Fox_Life, Fox_Crime,
-Fox_Movies, Fox, Pink_Premium, Pink_Family, Pink_Film, Pink_Movies, Pink_Romance, Pink_Sci_Fi,
-Pink_Action, Pink_Thriller, Pink_Crime_and_Mystery, Pink_Comedy, Pink_Horror, Pink_Western,
-Pink_Classic, Pink_World_Cinema, Diva, AXN, SciFi, Klasik_TV, AMC]
+def getRequest(url):
+    return requests.get(url).text
+
+def concurrentGetRequest():
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        global urls
+        executorResult = [executor.submit(getRequest, url) for url in urls]
+
+        results = []
+        for f in concurrent.futures.as_completed(executorResult):
+            results.append(f.result())
+        return results
+
+channels = concurrentGetRequest()
