@@ -72,15 +72,12 @@ addMovie.grid(column=0, row=1, padx=5, pady=(3, 8), sticky='w')
 
 # Генерисање резултата
 def generateResults(results):
-    if results == '':
+    if len(results) == 0:
         return
-    if radioButtonVar.get() == 1:
-        resultLabel = Label(window, text=results, bg='blue', fg='white', name='generated1').grid(column=2, row=8, sticky='w')
-    else:
-        resultsList = Listbox(window, bg='blue', fg='white', width=0, height=17, name='generated2')
-        resultsList.grid(column=5, row=0, rowspan=12, padx=(15,0), pady=(5,0))
-        for movie in results:
-            resultsList.insert(END, movie)
+    resultsList = Listbox(window, bg='blue', fg='white', width=0, height=17, name='generated2')
+    resultsList.grid(column=5, row=0, rowspan=12, padx=(15,0), pady=(5,0))
+    for movie in results:
+        resultsList.insert(END, movie)
 
 # Покретање претраге
 def executeSearch():

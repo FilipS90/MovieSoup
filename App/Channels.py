@@ -49,6 +49,6 @@ def concurrentGetRequest():
         results = []
         for f in concurrent.futures.as_completed(executorResult):
             results.append(f.result())
-        return results
+    return results
 
 channels = concurrentGetRequest()
