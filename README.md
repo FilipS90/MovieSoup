@@ -13,10 +13,3 @@ Results list is scrollable.
 In case you want to check Претражи is the Search button.
 
 Runs on Python 3.9.5
-
-
-Final notes:
-
-I'm wrapping up the work on this, it was fun. The app certainly could've been more polished, but it is as good as I need it to be. I need to dedicate my time to Spring/Spring Boot, the things that actually matter, so no more tinkering with this one.
-
-
