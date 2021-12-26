@@ -10,6 +10,6 @@ Search options available are as follows:
 - By genre (relying on site for accuracy);
 - By year the movie is produced (two fields, from and to).
 
-Results list is scrollable.
+Results list is scrollable. Double clicking any of results will do a google search with movie name and year as parameters, to easily check on imdb rating.
 
 In case you want to check Претражи is the Search button.
