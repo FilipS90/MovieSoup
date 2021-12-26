@@ -12,4 +12,6 @@ Search options available are as follows:
 
 Results list is scrollable. Double clicking any of results will do a google search with movie name and year as parameters, to easily check on imdb rating.
 
+Double clicking on element in keywords list will remove the element.
+
 In case you want to check Претражи is the Search button.
