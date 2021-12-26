@@ -14,4 +14,4 @@ Results list is scrollable. Double clicking any of results will do a google sear
 
 Double clicking on element in keywords list will remove the element.
 
-In case you want to check Претражи is the Search button.
+Претражи is the Search button.
