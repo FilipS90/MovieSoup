@@ -3,6 +3,8 @@ from tkinter import *
 from tkinter import ttk
 from functools import partial
 import importlib
+import webbrowser
+import re
 import sys
 import os
 
@@ -14,7 +16,10 @@ window.title('MovieSoup 1.0')
 window.geometry('1020x350')
 window.resizable(width=False, height=False)
 
+# Global variables
 nameInt = 0
+searchResults = None
+movieKeywords = None
 
 def setConstantElementNames():
     global nameInt
@@ -74,10 +79,30 @@ addMovie.grid(column=0, row=1, padx=5, pady=(3, 8), sticky='w')
 def generateResults(results):
     if len(results) == 0:
         return
-    resultsList = Listbox(window, bg='blue', fg='white', width=0, height=17, name='generated2')
-    resultsList.grid(column=5, row=0, rowspan=12, padx=(15,0), pady=(5,0))
+    global searchResults 
+    resultsListWidget = Listbox(window, bg='blue', fg='white', width=0, height=17, name='generated2')
+    resultsListWidget.grid(column=5, row=0, rowspan=12, padx=(15,0), pady=(5,0))
+    resultsListWidget.bind('<Double-1>', searchMovieInBrowser)
+    searchResults = resultsListWidget
+
     for movie in results:
-        resultsList.insert(END, movie)
+        resultsListWidget.insert(END, movie)
+
+def searchMovieInBrowser(event):
+    global searchResults
+    for i in searchResults.curselection():
+        movie = searchResults.get(i)
+    googleQuery = movie.split('-')[0]
+    isValid = re.search(r'\d+$', googleQuery[:-1])
+
+    if(not checkIfValidStringForQuery(googleQuery)):
+        googleQuery = movie.split('-')[0] + '-' + movie.split('-')[1]
+
+    googleQuery = googleQuery.replace(' ', '+')
+    webbrowser.open('https://www.google.com/search?q=' + googleQuery)
+
+def checkIfValidStringForQuery(string):
+    return re.search(r'\d+$', string[:-1])
 
 # Покретање претраге
 def executeSearch():
@@ -196,13 +221,11 @@ def refreshWindow(widgetToDelete):
         if str(widget).split(".")[-1].startswith(widgetToDelete):
             widget.destroy()
 
-resultsList = None
-
 # Уклони кључну реч / назив филма
 def removeKeyword(event):
-    global resultsList
-    for i in resultsList.curselection():
-        val = resultsList.get(i)
+    global movieKeywords
+    for i in movieKeywords.curselection():
+        val = movieKeywords.get(i)
     IOUtils.deleteLine(val)
     refreshWindow('keywords')
     generateCurrentSearch()
@@ -210,13 +233,13 @@ def removeKeyword(event):
 # Генерисање тренутних кључних речи / имена филмова
 def generateCurrentSearch():
     movies = IOUtils.returnOrCreateFile().split('\n')
-    global resultsList
-    resultsList = Listbox(window, bg='blue', fg='white', width=28, height=13, name='keywords')
-    resultsList.grid(column=0, row=2, padx=(5,0), pady=2, rowspan=10, sticky='w')
-    resultsList.bind('<Double-1>', removeKeyword)
+    global movieKeywords
+    movieKeywords = Listbox(window, bg='blue', fg='white', width=28, height=13, name='keywords')
+    movieKeywords.grid(column=0, row=2, padx=(5,0), pady=2, rowspan=10, sticky='w')
+    movieKeywords.bind('<Double-1>', removeKeyword)
 
     for movie in movies:
-        resultsList.insert(END, movie)
+        movieKeywords.insert(END, movie)
 
 if len(IOUtils.returnOrCreateFile().split('\n')) > 1:
     generateCurrentSearch()
